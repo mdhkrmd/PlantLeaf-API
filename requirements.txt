@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+joblib
+pandas
+numpy
+scikit-learn
+tensorflow
+keras
+Pillow
+gunicorn
+google-cloud-storage
+requests
+python-multipart
+jinja2
+mysql
+mysql-connector
+opencv-python
