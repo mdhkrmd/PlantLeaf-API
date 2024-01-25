@@ -18,39 +18,20 @@ from datetime import datetime
 from pydantic import BaseModel
 
 app = FastAPI()
-app.mount("/assets", StaticFiles(directory="assets"), name="assets")
-templates = Jinja2Templates(directory="templates")
 
 # Load your model
 model_baru=load_model('effNetV2CAM.h5')
-jenis = ['Kawung', 'Megamendung', 'Parang', 'Sekarjagad', 'Truntum']
+jenis = ['Jagung_Blight', 'Jagung_Common_Rust', 'Jagung_Gray_Leaf_Spot', 'Jagung_Healthy', 'Padi_Bacterialblight', 'Padi_Blast', 'Padi_Brownspot', 'Pisang_Cordana', 'Pisang_Healthy', 'Pisang_Pestalotiopsis', 'Pisang_Sigatoka', 'Singkong_Bacterial_Blight', 'Singkong_Brown_Streak_Disease', 'Singkong_Green_Mottle', 'Singkong_Healthy', 'Singkong_Mosaic_Disease', 'Tebu_Healthy', 'Tebu_Mosaic', 'Tebu_RedRot', 'Tebu_Rust', 'Tebu_Yellow']
 
 @app.get("/")
 def home(request: Request):
-    return print("Hello")
+    return "Hello"
 
 @app.post("/prediksi")
 async def predict_image(file: UploadFile = File(...)):
     conf, label = proses(file)
-    if label == "Megamendung":
-        info = "Megamendung batik comes from Cirebon, West Java. The pattern is cloudy clouds depicted with color gradations. The philosophy of Megamendung batik is a life entirely of change, while its meaning is the eternity of love and affection."
-        image = "assets\img\Megamendung.jpg"
-    elif label == "Kawung":
-        info = "Kawung batik comes from Central Java. The pattern is a kawung fruit depicted in a geometric pattern. The philosophy of Kawung batik is power and prosperity, while its meaning is success and prosperity."
-        image = "assets\img\Kawung.jfif"
-    elif label == "Parang":
-        info = "Parang Batik comes from Solo, Central Java. The pattern is sea waves depicted in geometric patterns. The philosophy of Parang batik is strength and eternity, while its meaning is the spirit of struggle and never giving up."
-        image = "assets\img\Parang.jpg"
-    elif label == "Sekarjagad":
-        info = "Batik Sekar Jagad comes from Yogyakarta. The pattern is the universe depicted with various kinds of flora and fauna. The philosophy of Sekar Jagad batik is harmony and balance of nature, while its meaning is the beauty and wonder of the universe."
-        image = "assets\img\Sekarjagad.jpg"
-    elif label == "Truntum":
-        info = "Truntum batik comes from Yogyakarta. The pattern is a truntum flower depicted in a geometric pattern. The philosophy of Truntum batik is fertility and prosperity, while its meaning is happiness and love."
-        image = "assets\img\Truntum.jpg"
-    
-    hasil = label + " ("+str(f"{conf*100:.2f}") + "%)" + "\n\n" + info + "\n\n"
 
-    return {"Text": hasil, "Image": image, "Label": label}
+    return {"Conf": str(f"{conf*100:.2f}"), "Label": label}
 
 # python -m uvicorn predictCV:app --reload
 if __name__ == '__main__':
