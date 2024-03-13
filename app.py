@@ -1,23 +1,14 @@
-from fastapi import FastAPI, File, UploadFile, Request, HTTPException
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import  StreamingResponse
+from fastapi import FastAPI, File, UploadFile, Request
 import uvicorn
 import os
 from tensorflow.keras.models import load_model
-import cv2
-import numpy as np
-from typing import Generator
-from PIL import Image
-import keras
-from tensorflow.keras.applications.efficientnet import preprocess_input
-import mysql.connector
-import time
-from datetime import datetime
 from pydantic import BaseModel
 
 from predict import proses
 from artikel.artikel import get_artikel
+from auth.register import register, showUsers
+from auth.login import login
+from auth.forgot import forgot
 
 app = FastAPI()
 
@@ -34,12 +25,44 @@ app = FastAPI()
 def home(request: Request):
     return "Hello"
 
+
+#=============================================================================
+# Auth
+class authreq(BaseModel):
+    id: int
+    username: str
+    password: str
+    nik: str
+    nama: str
+
+@app.get("/users")
+async def get_users_route(nik: str = None):
+    return await showUsers(nik)
+
+@app.post("/register")
+async def post_register_route(request: Request):
+    return await register(request)
+
+@app.post("/login")
+async def post_login_route(request: Request):
+    return await login(request)
+
+@app.post("/forgot")
+async def post_forgot_route(request: Request):
+    return await forgot(request)
+
+
+#=============================================================================
+# Predict
 @app.post("/prediksi")
 async def predict_image(file: UploadFile = File(...)):
     conf, label = proses(file)
 
     return {"Conf": str(f"{conf*100:.2f}"), "Label": label}
 
+
+#=============================================================================
+# Artikel
 @app.get("/artikel")
 def get_artikel_route():
     return get_artikel()
