@@ -12,6 +12,18 @@ from tensorflow.keras import Model
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
 import os
 from io import BytesIO
+from fastapi import FastAPI, Request
+import mysql.connector
+from pydantic import BaseModel
+
+app = FastAPI()
+
+mydb = mysql.connector.connect(
+  host="localhost",
+  user="root",
+  password="",
+  database="plantleaf"
+)
 
 
 # def get_img_array(img_path, size):
@@ -164,15 +176,7 @@ def VizGradCAMBBfix(model, image, interpolant=0.5, plot_results=True, threshold=
     else:
         return activation_map  # Return activation map without heatmap
 
-def proses(file):
-    model_baru=load_model('i-WO Singkong - Split-98.65.h5')
-    jenis = ['Jagung_Blight', 'Jagung_Common_Rust', 'Jagung_Gray_Leaf_Spot', 'Jagung_Healthy', 
-         'Kentang__Early_blight', 'Kentang__Healthy', 'Kentang__Late_blight', 
-         'Mangga_Anthracnose', 'Mangga_Bacterial_Canker', 'Mangga_Gall_Midge', 'Mangga_Healthy', 'Mangga_Powdery_Mildew', 'Mangga_Sooty_Mould', 
-         'Padi_Bacterialblight', 'Padi_Blast', 'Padi_Brownspot', 'Padi_Healthy', 
-         'Pisang_Cordana', 'Pisang_Healthy', 'Pisang_Pestalotiopsis', 'Pisang_Sigatoka', 
-         'Tebu_Healthy', 'Tebu_Mosaic', 'Tebu_RedRot', 'Tebu_Rust', 'Tebu_Yellow']
-
+def proses(file, model_baru, jenis):
     # Read the image into memory
     image_data = BytesIO(file.file.read())
     image = Image.open(image_data)
@@ -192,6 +196,30 @@ def proses(file):
     kelas = p.argmax(axis=1)[0]
     label = jenis[kelas]
     conf = float(p[0][kelas])
+    
+    cursor = mydb.cursor()
+    query = "SELECT * FROM penyakit WHERE label_penyakit = '" + label + "'"
+    
+    try:
+        cursor.execute(query)
+        row = cursor.fetchone()
+        return {
+                "conf": conf,
+                "label": label,
+                "id": row[0],
+                "label_penyakit": row[1],
+                "tentang_penyakit": row[2],
+                "gejala": row[3],
+                "penanganan": row[4]
+            }
+    
+    except Exception as e:
+        response = {
+            'status': 'error',
+            'message': 'Terjadi kesalahan saat mengambil data',
+            'error': str(e)
+        }
+        return response
 
     # # Remove last layer's softmax
     # model_baru.layers[-1].activation = None
@@ -221,5 +249,3 @@ def proses(file):
 
     # # Optionally: Close the file if it's no longer needed
     # file.file.close()
-
-    return conf, label

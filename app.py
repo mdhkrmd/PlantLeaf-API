@@ -9,17 +9,19 @@ from artikel.artikel import get_artikel
 from auth.register import register, showUsers
 from auth.login import login
 from auth.forgot import forgot
+from auth.updateProfil import updateProf
+from prediksi.result import showResult
+from tanaman.show import showTanaman
 
 app = FastAPI()
 
 # Load your model
-# model_baru=load_model('i-WO Singkong - Split-98.65.h5')
-# jenis = ['Jagung_Blight', 'Jagung_Common_Rust', 'Jagung_Gray_Leaf_Spot', 'Jagung_Healthy', 
-#          'Kentang__Early_blight', 'Kentang__Healthy', 'Kentang__Late_blight', 
-#          'Mangga_Anthracnose', 'Mangga_Bacterial_Canker', 'Mangga_Gall_Midge', 'Mangga_Healthy', 'Mangga_Powdery_Mildew', 'Mangga_Sooty_Mould', 
-#          'Padi_Bacterialblight', 'Padi_Blast', 'Padi_Brownspot', 'Padi_Healthy', 
-#          'Pisang_Cordana', 'Pisang_Healthy', 'Pisang_Pestalotiopsis', 'Pisang_Sigatoka', 
-#          'Tebu_Healthy', 'Tebu_Mosaic', 'Tebu_RedRot', 'Tebu_Rust', 'Tebu_Yellow']
+model_baru=load_model('i-WO Singkong - Split-98.65.h5')
+jenis = ['Jagung_Blight', 'Jagung_Common_Rust', 'Jagung_Gray_Leaf_Spot', 'Jagung_Healthy','Kentang__Early_blight', 'Kentang__Healthy', 'Kentang__Late_blight', 
+         'Mangga_Anthracnose', 'Mangga_Bacterial_Canker', 'Mangga_Gall_Midge', 'Mangga_Healthy', 'Mangga_Powdery_Mildew', 'Mangga_Sooty_Mould', 
+         'Padi_Bacterialblight', 'Padi_Blast', 'Padi_Brownspot', 'Padi_Healthy', 
+         'Pisang_Cordana', 'Pisang_Healthy', 'Pisang_Pestalotiopsis', 'Pisang_Sigatoka', 
+         'Tebu_Healthy', 'Tebu_Mosaic', 'Tebu_RedRot', 'Tebu_Rust', 'Tebu_Yellow']
 
 @app.get("/")
 def home(request: Request):
@@ -51,14 +53,19 @@ async def post_login_route(request: Request):
 async def post_forgot_route(request: Request):
     return await forgot(request)
 
+@app.post("/update")
+async def post_update_route(request: Request):
+    return await updateProf(request)
 
 #=============================================================================
 # Predict
 @app.post("/prediksi")
 async def predict_image(file: UploadFile = File(...)):
-    conf, label = proses(file)
+    return proses(file, model_baru, jenis)
 
-    return {"Conf": str(f"{conf*100:.2f}"), "Label": label}
+@app.get("/result")
+async def get_result_route(label: str = None):
+    return await showResult(label)
 
 
 #=============================================================================
@@ -66,6 +73,12 @@ async def predict_image(file: UploadFile = File(...)):
 @app.get("/artikel")
 def get_artikel_route():
     return get_artikel()
+
+#=============================================================================
+# Tanaman
+@app.get("/tanaman")
+async def get_tanaman_route(nama: str = None):
+    return await showTanaman(nama)
 
 # python -m uvicorn predictCV:app --reload
 if __name__ == '__main__':
