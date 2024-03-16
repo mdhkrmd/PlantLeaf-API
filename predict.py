@@ -16,8 +16,11 @@ from fastapi import FastAPI, Request
 import mysql.connector
 from pydantic import BaseModel
 import base64
+import mimetypes
+from google.cloud import storage
 
 app = FastAPI()
+bucket_name = "www.skinnie.my.id"
 
 mydb = mysql.connector.connect(
   host="localhost",
@@ -256,3 +259,97 @@ def proses(file, model_baru, jenis):
 
     # # Optionally: Close the file if it's no longer needed
     # file.file.close()
+    
+def upload_image_to_storage_base64(image_base64, filename):
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket_name)
+
+    directory = "fotoResults"
+    blob_path = f"{directory}/{filename}"
+    file_blob = bucket.blob(blob_path)
+
+    # Decode base64 image data
+    image_data = base64.b64decode(image_base64)
+
+    # Upload to Google Cloud Storage
+    file_blob.upload_from_string(image_data, content_type='image/jpeg')
+    print(f"Image {filename} uploaded to Google Cloud Storage.")
+
+    image_url = f"https://storage.googleapis.com/{bucket_name}/fotoResults/{filename}"
+    return image_url
+
+def proses_upload(file, model_baru, jenis, nik, nama):
+    # Read the image into memory
+    image_data = BytesIO(file.file.read())
+    image = Image.open(image_data)
+    
+    # Optional: Save the image if necessary
+    saved_path = f'saved_pictures/{file.filename}'
+    image.save(saved_path)
+
+    # Preprocess the image
+    img_array = preprocess_input(np.array(image.resize((224, 224))))
+
+    # Ensure img_array is 4D
+    img_array = np.expand_dims(img_array, axis=0)
+
+    # Make prediction using the model
+    p = model_baru.predict(img_array)
+    kelas = p.argmax(axis=1)[0]
+    label = jenis[kelas]
+    conf = float(p[0][kelas])
+    
+    cursor = mydb.cursor()
+    query = "SELECT * FROM penyakit WHERE label_penyakit = '" + label + "'"
+    
+    # # Remove last layer's softmax
+    model_baru.layers[-1].activation = None
+    
+    # # Convert PIL image to numpy array (OpenCV format)
+    test_img = np.array(image.convert('RGB'))  # Ensure the image is in RGB format
+    
+    # # Resize the image to the required input size of the model
+    resized_test_img = cv2.resize(test_img, (224, 224))
+    
+    # # Run Grad-CAM and bounding box drawing
+    bbpic = VizGradCAMBBfix(model_baru, resized_test_img, plot_results=True)
+    # Save the image to a buffer rather than a file
+    _, buffer = cv2.imencode('.jpg', bbpic)
+    io_buf = BytesIO(buffer)
+    # Encode the image buffer to Base64
+    base64_image = base64.b64encode(io_buf.getvalue()).decode('utf-8')
+
+    # # Create and save the original image with bounding box
+    if not os.path.exists('saved_pictures_bb'):
+        os.makedirs('saved_pictures_bb')
+    img_with_boxes_path = f'saved_pictures_bb/{file.filename}_bb.jpg'
+    cv2.imwrite(img_with_boxes_path, bbpic)
+    
+    url = upload_image_to_storage_base64(base64_image, file.filename)
+    cursor2 = mydb.cursor()
+    query2 = "INSERT INTO prediksi (nik, penyakit, nama, gambar) VALUES (%s,%s,%s,%s)"
+    val = (nik, label, nama, url)
+    cursor2.execute(query2, val)
+    mydb.commit()
+    
+    try:
+        cursor.execute(query)
+        row = cursor.fetchone()
+        return {
+                "gambar":  base64_image,
+                "conf": conf,
+                "label": label,
+                "id": row[0],
+                "label_penyakit": row[1],
+                "tentang_penyakit": row[2],
+                "gejala": row[3],
+                "penanganan": row[4]
+            }
+    
+    except Exception as e:
+        response = {
+            'status': 'error',
+            'message': 'Terjadi kesalahan saat mengambil data',
+            'error': str(e)
+        }
+        return response

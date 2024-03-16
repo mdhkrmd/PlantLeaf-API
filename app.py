@@ -1,10 +1,11 @@
 from fastapi import FastAPI, File, UploadFile, Request
+from fastapi.param_functions import Form
 import uvicorn
 import os
 from tensorflow.keras.models import load_model
 from pydantic import BaseModel
 
-from predict import proses
+from predict import proses, proses_upload
 from artikel.artikel import get_artikel
 from auth.register import register, showUsers
 from auth.login import login
@@ -30,12 +31,6 @@ def home(request: Request):
 
 #=============================================================================
 # Auth
-class authreq(BaseModel):
-    id: int
-    username: str
-    password: str
-    nik: str
-    nama: str
 
 @app.get("/users")
 async def get_users_route(nik: str = None):
@@ -59,6 +54,11 @@ async def post_update_route(request: Request):
 
 #=============================================================================
 # Predict
+
+class UserData(BaseModel):
+    nik: str
+    nama: str
+
 @app.post("/prediksi")
 async def predict_image(file: UploadFile = File(...)):
     return proses(file, model_baru, jenis)
@@ -66,6 +66,11 @@ async def predict_image(file: UploadFile = File(...)):
 @app.get("/result")
 async def get_result_route(label: str = None):
     return await showResult(label)
+
+@app.post("/prediksiupload")
+async def predict_image_upload(file: UploadFile = File(...), nik: str = Form(...), nama: str = Form(...)):
+    # file_contents = await file.read()
+    return proses_upload(file, model_baru, jenis, nik, nama)
 
 
 #=============================================================================
@@ -83,4 +88,5 @@ async def get_tanaman_route(nama: str = None):
 # python -m uvicorn predictCV:app --reload
 if __name__ == '__main__':
     # nanti di cloud run samain juga CONTAINER PORT -> 3000
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "auth/key.json" 
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 3000))) 
