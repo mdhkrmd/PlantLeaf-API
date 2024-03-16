@@ -13,6 +13,7 @@ from auth.forgot import forgot
 from auth.updateProfil import updateProf
 from prediksi.result import showResult
 from tanaman.show import showTanaman
+from riwayat.riwayat import showRiwayat
 
 app = FastAPI()
 
@@ -69,7 +70,6 @@ async def get_result_route(label: str = None):
 
 @app.post("/prediksiupload")
 async def predict_image_upload(file: UploadFile = File(...), nik: str = Form(...), nama: str = Form(...)):
-    # file_contents = await file.read()
     return proses_upload(file, model_baru, jenis, nik, nama)
 
 
@@ -84,6 +84,12 @@ def get_artikel_route():
 @app.get("/tanaman")
 async def get_tanaman_route(nama: str = None):
     return await showTanaman(nama)
+
+#=============================================================================
+# Riwayat
+@app.get("/riwayat")
+async def get_riwayat_route(nik: str = None):
+    return await showRiwayat(nik)
 
 # python -m uvicorn predictCV:app --reload
 if __name__ == '__main__':
