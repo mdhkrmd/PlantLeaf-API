@@ -213,19 +213,26 @@ def proses(file, model_baru, jenis):
     # # Resize the image to the required input size of the model
     resized_test_img = cv2.resize(test_img, (224, 224))
     
-    # # Run Grad-CAM and bounding box drawing
-    bbpic = VizGradCAMBBfix(model_baru, resized_test_img, plot_results=True)
-    # Save the image to a buffer rather than a file
-    _, buffer = cv2.imencode('.jpg', bbpic)
-    io_buf = BytesIO(buffer)
-    # Encode the image buffer to Base64
-    base64_image = base64.b64encode(io_buf.getvalue()).decode('utf-8')
-
-    # # Create and save the original image with bounding box
-    if not os.path.exists('saved_pictures_bb'):
-        os.makedirs('saved_pictures_bb')
-    img_with_boxes_path = f'saved_pictures_bb/{file.filename}_bb.jpg'
-    cv2.imwrite(img_with_boxes_path, bbpic)
+    daun_healthy = ['Jagung_Healthy','Mangga_Healthy','Padi_Healthy','Pisang_Healthy','Kentang__Healthy', ]
+    
+    if label in daun_healthy:
+        _, buffer = cv2.imencode('.jpg', resized_test_img)
+        io_buf = BytesIO(buffer)
+        # Encode the image buffer to Base64
+        base64_image = base64.b64encode(io_buf.getvalue()).decode('utf-8')
+    else:
+        # # Run Grad-CAM and bounding box drawing
+        bbpic = VizGradCAMBBfix(model_baru, resized_test_img, plot_results=True)
+        # Save the image to a buffer rather than a file
+        _, buffer = cv2.imencode('.jpg', bbpic)
+        io_buf = BytesIO(buffer)
+        # Encode the image buffer to Base64
+        base64_image = base64.b64encode(io_buf.getvalue()).decode('utf-8')
+        # # Create and save the original image with bounding box
+        if not os.path.exists('saved_pictures_bb'):
+            os.makedirs('saved_pictures_bb')
+        img_with_boxes_path = f'saved_pictures_bb/{file.filename}_bb.jpg'
+        cv2.imwrite(img_with_boxes_path, bbpic)
     
     try:
         cursor.execute(query)
@@ -311,19 +318,26 @@ def proses_upload(file, model_baru, jenis, nik, nama):
     # # Resize the image to the required input size of the model
     resized_test_img = cv2.resize(test_img, (224, 224))
     
-    # # Run Grad-CAM and bounding box drawing
-    bbpic = VizGradCAMBBfix(model_baru, resized_test_img, plot_results=True)
-    # Save the image to a buffer rather than a file
-    _, buffer = cv2.imencode('.jpg', bbpic)
-    io_buf = BytesIO(buffer)
-    # Encode the image buffer to Base64
-    base64_image = base64.b64encode(io_buf.getvalue()).decode('utf-8')
-
-    # # Create and save the original image with bounding box
-    if not os.path.exists('saved_pictures_bb'):
-        os.makedirs('saved_pictures_bb')
-    img_with_boxes_path = f'saved_pictures_bb/{file.filename}_bb.jpg'
-    cv2.imwrite(img_with_boxes_path, bbpic)
+    daun_healthy = ['Jagung_Healthy','Mangga_Healthy','Padi_Healthy','Pisang_Healthy','Kentang__Healthy', ]
+    
+    if label in daun_healthy:
+        _, buffer = cv2.imencode('.jpg', resized_test_img)
+        io_buf = BytesIO(buffer)
+        # Encode the image buffer to Base64
+        base64_image = base64.b64encode(io_buf.getvalue()).decode('utf-8')
+    else:
+        # # Run Grad-CAM and bounding box drawing
+        bbpic = VizGradCAMBBfix(model_baru, resized_test_img, plot_results=True)
+        # Save the image to a buffer rather than a file
+        _, buffer = cv2.imencode('.jpg', bbpic)
+        io_buf = BytesIO(buffer)
+        # Encode the image buffer to Base64
+        base64_image = base64.b64encode(io_buf.getvalue()).decode('utf-8')
+        # # Create and save the original image with bounding box
+        if not os.path.exists('saved_pictures_bb'):
+            os.makedirs('saved_pictures_bb')
+        img_with_boxes_path = f'saved_pictures_bb/{file.filename}_bb.jpg'
+        cv2.imwrite(img_with_boxes_path, bbpic)
     
     url = upload_image_to_storage_base64(base64_image, file.filename)
     cursor2 = mydb.cursor()
