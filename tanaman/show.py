@@ -11,7 +11,7 @@ mydb = mysql.connector.connect(
   database="plantleaf"
 )
 
-async def showTanaman(nama):
+def showTanaman(nama):
     cursor = mydb.cursor()
     
     if nama is None:

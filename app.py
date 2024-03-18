@@ -5,7 +5,7 @@ import os
 from tensorflow.keras.models import load_model
 from pydantic import BaseModel
 
-from predict import proses, proses_upload
+from predict import proses, proses_upload, proses_upload_opsi
 from artikel.artikel import get_artikel
 from auth.register import register, showUsers
 from auth.login import login
@@ -16,6 +16,7 @@ from tanaman.show import showTanaman
 from riwayat.riwayat import showRiwayat
 
 app = FastAPI()
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "auth/key.json"
 
 # Load your model
 model_baru=load_model('i-WO Singkong - Split-98.65.h5')
@@ -35,8 +36,8 @@ def home(request: Request):
 # Auth
 
 @app.get("/users")
-async def get_users_route(nik: str = None):
-    return await showUsers(nik)
+def get_users_route(nik: str = None):
+    return showUsers(nik)
 
 @app.post("/register")
 async def post_register_route(request: Request):
@@ -73,6 +74,10 @@ async def get_result_route(label: str = None):
 async def predict_image_upload(file: UploadFile = File(...), nik: str = Form(...), nama: str = Form(...)):
     return proses_upload(file, model_baru, jenis, nik, nama)
 
+@app.post("/prediksiuploadopsi")
+async def predict_image_upload_opsi(file: UploadFile = File(...), nik: str = Form(...), nama: str = Form(...), bb: str = Form(...)):
+    return proses_upload_opsi(file, model_baru, jenis, nik, nama, bb)
+
 
 #=============================================================================
 # Artikel
@@ -83,17 +88,16 @@ def get_artikel_route():
 #=============================================================================
 # Tanaman
 @app.get("/tanaman")
-async def get_tanaman_route(nama: str = None):
-    return await showTanaman(nama)
+def get_tanaman_route(nama: str = None):
+    return showTanaman(nama)
 
 #=============================================================================
 # Riwayat
 @app.get("/riwayat")
-async def get_riwayat_route(nik: str = None):
-    return await showRiwayat(nik)
+def get_riwayat_route(nik: str = None):
+    return showRiwayat(nik)
 
-# python -m uvicorn predictCV:app --reload
+# python -m uvicorn app:app --reload
 if __name__ == '__main__':
     # nanti di cloud run samain juga CONTAINER PORT -> 3000
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "auth/key.json" 
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 3000))) 
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 3000)), reload=True) 

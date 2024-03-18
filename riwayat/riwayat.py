@@ -11,7 +11,7 @@ mydb = mysql.connector.connect(
   database="plantleaf"
 )
 
-async def showRiwayat(nik):
+def showRiwayat(nik):
     cursor = mydb.cursor()
     
     if nik is None:
@@ -29,7 +29,7 @@ async def showRiwayat(nik):
                 "tanggal": row[2],
                 "penyakit": row[3],
                 "nama": row[4],
-                "gambar": row[4]
+                "gambar": row[5]
             } for row in result
         ]
     

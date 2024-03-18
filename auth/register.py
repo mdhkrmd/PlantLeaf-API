@@ -11,7 +11,7 @@ mydb = mysql.connector.connect(
   database="plantleaf"
 )
 
-async def showUsers(nik):
+def showUsers(nik):
     cursor = mydb.cursor()
     
     if nik is None:
