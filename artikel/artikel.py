@@ -12,6 +12,7 @@ mydb = mysql.connector.connect(
 )
 
 def get_artikel():
+    mydb.connect()
     cursor = mydb.cursor()
     cursor.execute("SELECT * FROM artikel")
     result = cursor.fetchall()

@@ -5,7 +5,7 @@ import os
 from tensorflow.keras.models import load_model
 from pydantic import BaseModel
 
-from predict import proses, proses_upload, proses_upload_opsi
+from prediksi.predict import proses, proses_upload, proses_upload_opsi
 from artikel.artikel import get_artikel
 from auth.register import register, showUsers
 from auth.login import login
@@ -16,7 +16,6 @@ from tanaman.show import showTanaman
 from riwayat.riwayat import showRiwayat
 
 app = FastAPI()
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "auth/key.json"
 
 # Load your model
 model_baru=load_model('i-WO Singkong - Split-98.65.h5')
@@ -100,4 +99,5 @@ def get_riwayat_route(nik: str = None):
 # python -m uvicorn app:app --reload
 if __name__ == '__main__':
     # nanti di cloud run samain juga CONTAINER PORT -> 3000
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 3000)), reload=True) 
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "auth/key.json"
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 3000))) 

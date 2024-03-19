@@ -12,6 +12,7 @@ mydb = mysql.connector.connect(
 )
 
 def showUsers(nik):
+    mydb.connect()
     cursor = mydb.cursor()
     
     if nik is None:
@@ -33,6 +34,7 @@ def showUsers(nik):
         ]
     
     except Exception as e:
+        mydb.close()
         response = {
             'status': 'error',
             'message': 'Terjadi kesalahan saat mengambil data',
@@ -47,12 +49,14 @@ async def register(request: Request):
     nik = data['nik']
     nama = data['nama']
     
+    mydb.connect()
     cursor = mydb.cursor()
     try:
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         result = cursor.fetchone()
 
         if result:
+            mydb.close()
             response = {
                 'status': 'error',
                 'message': 'Username sudah terdaftar'
@@ -63,10 +67,12 @@ async def register(request: Request):
         val = (username, password, nik, nama)
         cursor.execute(sql, val)
         mydb.commit()
+        mydb.close()
         return {"message": "Akun Berhasil ditambah"}
     
     except Exception as e:
-        mydb.rollback()
+        mydb.rollback()        
+        mydb.close()
         response = {
             'status': 'error',
             'message': 'Terjadi kesalahan saat membuat akun',

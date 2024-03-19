@@ -12,6 +12,7 @@ mydb = mysql.connector.connect(
 )
 
 def showTanaman(nama):
+    mydb.connect()
     cursor = mydb.cursor()
     
     if nama is None:
@@ -33,6 +34,7 @@ def showTanaman(nama):
         ]
     
     except Exception as e:
+        mydb.close()
         response = {
             'status': 'error',
             'message': 'Terjadi kesalahan saat mengambil data',

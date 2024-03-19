@@ -12,12 +12,13 @@ mydb = mysql.connector.connect(
 )
 
 def showRiwayat(nik):
+    mydb.connect()
     cursor = mydb.cursor()
     
     if nik is None:
         query = "SELECT * FROM prediksi"
     else:
-        query = "SELECT * FROM prediksi WHERE nik = '" + nik + "'"
+        query = "SELECT * FROM prediksi WHERE nik = '" + nik + "' ORDER BY id DESC"
     
     try:
         cursor.execute(query)
@@ -34,6 +35,7 @@ def showRiwayat(nik):
         ]
     
     except Exception as e:
+        mydb.close()
         response = {
             'status': 'error',
             'message': 'Terjadi kesalahan saat mengambil data',

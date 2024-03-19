@@ -201,6 +201,7 @@ def proses(file, model_baru, jenis):
     label = jenis[kelas]
     conf = float(p[0][kelas])
     
+    mydb.connect()
     cursor = mydb.cursor()
     query = "SELECT * FROM penyakit WHERE label_penyakit = '" + label + "'"
     
@@ -249,6 +250,7 @@ def proses(file, model_baru, jenis):
             }
     
     except Exception as e:
+        mydb.close()
         response = {
             'status': 'error',
             'message': 'Terjadi kesalahan saat mengambil data',
@@ -306,6 +308,7 @@ def proses_upload(file, model_baru, jenis, nik, nama):
     label = jenis[kelas]
     conf = float(p[0][kelas])
     
+    mydb.connect()
     cursor = mydb.cursor()
     query = "SELECT * FROM penyakit WHERE label_penyakit = '" + label + "'"
     
@@ -361,6 +364,7 @@ def proses_upload(file, model_baru, jenis, nik, nama):
             }
     
     except Exception as e:
+        mydb.close()
         response = {
             'status': 'error',
             'message': 'Terjadi kesalahan saat mengambil data',
@@ -389,6 +393,7 @@ def proses_upload_opsi(file, model_baru, jenis, nik, nama, bb):
     label = jenis[kelas]
     conf = float(p[0][kelas])
     
+    mydb.connect()
     cursor = mydb.cursor()
     query = "SELECT * FROM penyakit WHERE label_penyakit = '" + label + "'"
     
@@ -444,6 +449,7 @@ def proses_upload_opsi(file, model_baru, jenis, nik, nama, bb):
             }
     
     except Exception as e:
+        mydb.close()
         response = {
             'status': 'error',
             'message': 'Terjadi kesalahan saat mengambil data',

@@ -17,6 +17,7 @@ async def login(request: Request):
     password = data['password']
     
     # Koneksi MySQL
+    mydb.connect()
     cursor = mydb.cursor()
 
     try:
@@ -33,10 +34,9 @@ async def login(request: Request):
                 'nik': nik,
                 'nama': nama
             }
-
             return response
         else:
-            mydb.rollback()
+            mydb.close()
             response = {
                 'status': 'error',
                 'message': 'Username atau Password Salah'
@@ -44,7 +44,7 @@ async def login(request: Request):
             return response
     
     except Exception as e:
-        mydb.rollback()
+        mydb.close()
         response = {
             'status': 'error',
             'message': 'Terjadi kesalahan saat login',

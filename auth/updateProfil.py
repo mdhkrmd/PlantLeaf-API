@@ -17,6 +17,7 @@ async def updateProf(request: Request):
     nama = data['nama']
     
     # Koneksi MySQL
+    mydb.connect()
     cursor = mydb.cursor()
 
     try:
@@ -24,7 +25,7 @@ async def updateProf(request: Request):
         result = cursor.fetchone()
 
         if not result:
-            mydb.rollback()
+            mydb.close()
             response = {
                 'status': 'error',
                 'message': 'NIK tidak terdaftar'
@@ -39,7 +40,7 @@ async def updateProf(request: Request):
                     """
             cursor.execute(query, (nama, nik))
             mydb.commit()
-            mydb.rollback()
+            mydb.close()
             response = {
                 'status': 'success',
                 'message': 'Berhasil ganti data'
@@ -48,6 +49,7 @@ async def updateProf(request: Request):
             return response
     except Exception as e:
         mydb.rollback()
+        mydb.close()
         response = {
             'status': 'error',
             'message': 'Terjadi kesalahan',

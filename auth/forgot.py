@@ -17,6 +17,7 @@ async def forgot(request: Request):
     new_password = data['new_password']
     
     # Koneksi MySQL
+    mydb.connect()
     cursor = mydb.cursor()
     
     try:
@@ -24,7 +25,7 @@ async def forgot(request: Request):
         result = cursor.fetchone()
 
         if not result:
-            mydb.rollback()
+            mydb.close()
             response = {
                 'status': 'error',
                 'message': 'Username tidak terdaftar'
@@ -34,7 +35,7 @@ async def forgot(request: Request):
             query = "UPDATE users SET `password` = '" + new_password + "' WHERE `username` = '" + username + "'"
             cursor.execute(query)
             mydb.commit()
-
+            mydb.close()
             response = {
                 'status': 'success',
                 'message': 'Berhasil ganti password'
@@ -43,6 +44,7 @@ async def forgot(request: Request):
     
     except Exception as e:
         mydb.rollback()
+        mydb.close()
         response = {
             'status': 'error',
             'message': 'Terjadi kesalahan',
