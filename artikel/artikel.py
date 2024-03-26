@@ -14,7 +14,7 @@ mydb = mysql.connector.connect(
 def get_artikel():
     mydb.connect()
     cursor = mydb.cursor()
-    cursor.execute("SELECT * FROM artikel")
+    cursor.execute("SELECT * FROM artikel ORDER BY id DESC")
     result = cursor.fetchall()
     return [
         {
