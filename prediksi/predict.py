@@ -382,7 +382,7 @@ def proses_upload_opsi(file, model_baru, jenis, nik, nama, bb):
     image.save(saved_path)
 
     # Preprocess the image
-    img_array = preprocess_input(np.array(image.resize((224, 224))))
+    img_array = preprocess_input(np.array(image.resize((456,456))))
 
     # Ensure img_array is 4D
     img_array = np.expand_dims(img_array, axis=0)
@@ -404,7 +404,7 @@ def proses_upload_opsi(file, model_baru, jenis, nik, nama, bb):
     test_img = np.array(image.convert('RGB'))  # Ensure the image is in RGB format
     
     # # Resize the image to the required input size of the model
-    resized_test_img = cv2.resize(test_img, (224, 224))
+    resized_test_img = cv2.resize(test_img, (456,456))
     
     daun_healthy = ['Jagung_Healthy','Mangga_Healthy','Padi_Healthy','Pisang_Healthy','Kentang__Healthy', ]
     
