@@ -409,10 +409,10 @@ def proses_upload_opsi(file, model_baru, jenis, nik, nama, bb):
     daun_healthy = ['Jagung_Healthy','Mangga_Healthy','Padi_Healthy','Pisang_Healthy','Kentang__Healthy', ]
     
     if label in daun_healthy or bb == 'no':
-        buffer = BytesIO()
-        image.save(buffer, format="JPEG")
+        _, buffer = cv2.imencode('.jpg', resized_test_img)
+        io_buf = BytesIO(buffer)
         # Encode the image buffer to Base64
-        base64_image = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        base64_image = base64.b64encode(io_buf.getvalue()).decode('utf-8')
     else:
         # # Run Grad-CAM and bounding box drawing
         bbpic = VizGradCAMBBfix(model_baru, resized_test_img, plot_results=True)
