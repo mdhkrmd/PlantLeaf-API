@@ -18,7 +18,7 @@ from riwayat.riwayat import showRiwayat
 app = FastAPI()
 
 # Load your model
-model_baru=load_model('i-RealData-Cleaned-456-98.84.h5')
+model_baru=load_model('i-RealDataWPlantDoc-Cleaned-456-98.84.h5')
 jenis = ['Jagung_Blight', 'Jagung_Common_Rust', 'Jagung_Gray_Leaf_Spot', 'Jagung_Healthy',
          'Kentang__Early_blight', 'Kentang__Healthy', 'Kentang__Late_blight', 
          'Mangga_Anthracnose', 'Mangga_Bacterial_Canker', 'Mangga_Gall_Midge', 'Mangga_Healthy', 'Mangga_Powdery_Mildew', 'Mangga_Sooty_Mould', 
