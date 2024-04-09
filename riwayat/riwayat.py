@@ -30,7 +30,8 @@ def showRiwayat(nik):
                 "tanggal": row[2],
                 "penyakit": row[3],
                 "nama": row[4],
-                "gambar": row[5]
+                "gambar": row[5],
+                "catatan": row[6]
             } for row in result
         ]
     

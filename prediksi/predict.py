@@ -429,9 +429,10 @@ def proses_upload_opsi(file, model_baru, jenis, nik, nama, bb):
     
     url = upload_image_to_storage_base64(base64_image, file.filename)
     cursor2 = mydb.cursor()
-    query2 = "INSERT INTO prediksi (nik, penyakit, nama, gambar) VALUES (%s,%s,%s,%s)"
-    val = (nik, label, nama, url)
+    query2 = "INSERT INTO prediksi (nik, penyakit, nama, gambar, catatan) VALUES (%s,%s,%s,%s,%s)"
+    val = (nik, label, nama, url, "-")
     cursor2.execute(query2, val)
+    id_prediksi = cursor2.lastrowid
     mydb.commit()
     
     try:
@@ -445,7 +446,8 @@ def proses_upload_opsi(file, model_baru, jenis, nik, nama, bb):
                 "label_penyakit": row[1],
                 "tentang_penyakit": row[2],
                 "gejala": row[3],
-                "penanganan": row[4]
+                "penanganan": row[4],
+                "id_prediksi": id_prediksi
             }
     
     except Exception as e:

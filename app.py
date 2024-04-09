@@ -6,6 +6,7 @@ from tensorflow.keras.models import load_model
 from pydantic import BaseModel
 
 from prediksi.predict import proses, proses_upload, proses_upload_opsi
+from prediksi.catat import updateCatatan
 from artikel.artikel import get_artikel
 from auth.register import register, showUsers
 from auth.login import login
@@ -76,6 +77,10 @@ async def predict_image_upload(file: UploadFile = File(...), nik: str = Form(...
 @app.post("/prediksiuploadopsi")
 async def predict_image_upload_opsi(file: UploadFile = File(...), nik: str = Form(...), nama: str = Form(...), bb: str = Form(...)):
     return proses_upload_opsi(file, model_baru, jenis, nik, nama, bb)
+
+@app.post("/updateCatatan")
+async def post_update_catatan(request: Request):
+    return await updateCatatan(request)
 
 
 #=============================================================================
