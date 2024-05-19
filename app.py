@@ -14,6 +14,7 @@ from auth.forgot import forgot
 from auth.updateProfil import updateProf
 from prediksi.result import showResult
 from tanaman.show import showTanaman
+from tanaman.show import showPenyakit
 from riwayat.riwayat import showRiwayat
 
 app = FastAPI()
@@ -94,6 +95,11 @@ def get_artikel_route():
 @app.get("/tanaman")
 def get_tanaman_route(nama: str = None):
     return showTanaman(nama)
+
+# Tanaman
+@app.get("/penyakit")
+def get_penyakit_route(labelPenyakit: str = None):
+    return showPenyakit(labelPenyakit)
 
 #=============================================================================
 # Riwayat

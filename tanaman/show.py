@@ -41,3 +41,35 @@ def showTanaman(nama):
             'error': str(e)
         }
         return [response] if nama is None else response
+    
+def showPenyakit(labelPenyakit):
+    mydb.connect()
+    cursor = mydb.cursor()
+    
+    if labelPenyakit is None:
+        query = "SELECT * FROM penyakit"
+    else:
+        query = "SELECT * FROM penyakit WHERE label_penyakit = '" + labelPenyakit + "'"
+    
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()
+        return [
+            {
+                "id": row[0],
+                "label_penyakit": row[1],
+                "tentang_penyakit": row[2],
+                "gejala": row[3],
+                "penanganan": row[4],
+                "gambar": row[5]
+            } for row in result
+        ]
+    
+    except Exception as e:
+        mydb.close()
+        response = {
+            'status': 'error',
+            'message': 'Terjadi kesalahan saat mengambil data',
+            'error': str(e)
+        }
+        return [response] if labelPenyakit is None else response
